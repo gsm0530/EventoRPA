@@ -57,19 +57,18 @@ public class EventoSelenium {
         mdriver.manage().window().maximize();
     }
 
-    public void Start() {
+    public void Start(List<Integer> idlist) {
 
         try {
 
-            int startNum = 415700;
             JavascriptExecutor js = (JavascriptExecutor) mdriver;
-            Thread.sleep(2000);
-            mwait.until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector(".menus")));
+            int i = 0;
 
-            for (int i = 0 ; i < 5000; i++) {
+            for(int startNum : idlist) {
+
+                mwait.until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector(".menus")));
 
                 mdriver.get(mstrurl + "/" + String.valueOf(startNum));
-                startNum++;
 
                 Thread.sleep(500);
 
@@ -80,14 +79,22 @@ public class EventoSelenium {
                     continue;
                 }
 
-                Thread.sleep(3000);
+                Thread.sleep(2500);
+
+                if(mdriver.findElement(By.cssSelector(".infotype-container")).isDisplayed() ) {
+                    Thread.sleep(5000);
+                    mdriver.findElement(By.cssSelector(".contents.skip")).click();
+                    Thread.sleep(1000);
+                }
+
                 js.executeScript("window.scrollBy(0,99999)", "");
+
                 System.out.println(i + "Times. Successc!!!   LastNum : " + startNum);
+                i++;
             }
         } catch (Exception e) {
             System.out.println(e.getMessage());
             return;
         }
     }
-
 }

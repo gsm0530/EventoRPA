@@ -1,25 +1,45 @@
 package com.evento.eventorpa;
 
+import com.evento.eventorpa.entity.User;
+import com.evento.eventorpa.repository.UserRepository;
+import com.evento.eventorpa.service.UserService;
 import org.openqa.selenium.*;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.Select;
 import org.openqa.selenium.support.ui.WebDriverWait;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Example;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.stereotype.Component;
 
 import java.net.MalformedURLException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
+@Component
 public class AdminSelenium {
+
+    private static UserService inituserService;
+
+    @Autowired
+    UserService userService;
 
     public static WebElement webElement;
     private WebDriver mdriver;
     private WebDriverWait mwait;
     private static String mstrurl = "https://zzal.blog/partners/login";
 
-    public AdminSelenium() throws MalformedURLException {
+    public AdminSelenium()  {
+        inituserService = this.userService;
+    }
 
+    public void Init() {
         String WEB_DRIVER_ID = "webdriver.chrome.driver";
         String WEB_DRIVER_PATH = "C:\\chromedriver.exe";
 
@@ -52,7 +72,7 @@ public class AdminSelenium {
         mdriver.manage().window().maximize();
     }
 
-    public void Start() {
+    public void ADD() {
 
         try {
 
@@ -80,7 +100,7 @@ public class AdminSelenium {
                         js.executeScript("arguments[0].scrollIntoView();",webElement );
 
                         webElement.click();
-                        Thread.sleep(3000);
+                        Thread.sleep(2000);
                     }
                 }
                 System.out.println("Admin -" + i + "Times. Successc!");
@@ -89,6 +109,63 @@ public class AdminSelenium {
             System.out.println(e.getMessage());
             return;
         }
+    }
+
+    public void Adminset(String userid) {
+
+        try {
+
+            Thread.sleep(2000);
+            mwait.until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector(".login-form-inner")));
+
+            mdriver.findElement(By.id("form_id")).sendKeys(userid);
+            mdriver.findElement(By.id("form_pw")).sendKeys("gg05300719!!");
+            mdriver.findElement(By.id("zzal_login_button")).click();
+
+            Thread.sleep(2000);
+
+            mdriver.get("https://zzal.blog/partners/mystats/analytics");
+
+            Thread.sleep(2000);
+
+            Select select = new Select(mdriver.findElement(By.cssSelector(".datepicker-ranged-preset-selection")));
+            select.selectByIndex(3);
+
+            Thread.sleep(2000);
+
+            select = new Select(mdriver.findElement(By.cssSelector(".datepicker-ranged-sort-selection")));
+            select.selectByIndex(0);
+
+            Thread.sleep(2000);
+
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+    }
+
+    public Map GET(String userid,boolean first) {
+
+        Map map = new HashMap();
+
+        try {
+
+            if (!first) {
+                mdriver.findElement(By.cssSelector(".button.right")).click();
+                Thread.sleep(1000);
+            }
+
+            List<WebElement> mlist =  mdriver.findElements(By.cssSelector("#analytics-table-body tr td:nth-child(1)"));
+
+            map.put("list",mlist);
+            map.put("bnext",mdriver.findElement(By.cssSelector(".button.right")).isDisplayed());
+
+
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return null;
+        }
+
+        return map;
     }
 
 }
